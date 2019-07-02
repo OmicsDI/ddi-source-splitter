@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<database>
+  <name>ArrayExpress</name>
+  <description>ArrayExpress Archive of Functional Genomics Data stores data from high-throughput functional genomics experiments, and provides these data for reuse to the research community.</description>
+  <release_date>2019-06-27T03:00:15</release_date>
+  <entry_count>3</entry_count>
+  <entries>
+    <entry id="E-ATMX-19">
+      <name>Transcription profiling of Arabidopsis distal leaves directly exposed to and shaded from high light
+            levels
+        </name>
+      <description>Effect of high light on directly exposed and shaded, distal Arabidopsis leaf tissue</description>
+      <dates>
+        <date type="publication" value="2007-10-31"></date>
+        <date type="updated" value="2014-05-01"></date>
+      </dates>
+      <cross_references>
+        <ref dbname="pubmed" dbkey="18156220"/>
+      </cross_references>
+      <additional_fields>
+        <field name="sample_protocol">Nucleic Acid Extraction - Trizol extraction protocol</field>
+        <field name="data_protocol">Assay Data Transformation - ID_REF = &lt;br>VALUE = fluorescence intensity&lt;br>ABS_CALL = presence or absence call&lt;br>DETECTION
+            P-VALUE = confidence in precense call
+        
+ Feature Extraction - To identify differentially-expressed genes during acute GVHD versus recovery phase, the raw signal
+            intensity data were processed as follows.</field>
+        <field name="full_dataset_link">https://www.ebi.ac.uk/arrayexpress/experiments/E-ATMX-19</field>
+        <field name="omics_type">Transcriptomics</field>
+        <field name="submitter_keywords">transcription profiling by array</field>
+        <field name="submitter">Kate A Howell</field>
+        <field name="submitter_email">kooks@cyllene.uwa.edu.au</field>
+        <field name="species">Arabidopsis Thaliana</field>
+        <field name="repository">ArrayExpress</field>
+      </additional_fields>
+    </entry>
+    <entry id="E-ATMX-31">
+      <name>Transcription profiling of Arabidopsis shoots, roots and cell cultures</name>
+      <description>Microarray analysis of the changes in transcript abundance in cell culture and shoot</description>
+      <dates>
+        <date type="publication" value="2008-07-19"></date>
+        <date type="updated" value="2014-05-01"></date>
+        <date type="submission" value="2007-10-10"></date>
+      </dates>
+      <cross_references>
+        <ref dbname="pubmed" dbkey="18385124"/>
+      </cross_references>
+      <additional_fields>
+        <field name="sample_protocol">Nucleic Acid Extraction - Trizol extraction protocol</field>
+        <field name="data_protocol">Assay Data Transformation - ID_REF = &lt;br>VALUE = fluorescence intensity&lt;br>ABS_CALL = presence or absence call&lt;br>DETECTION
+            P-VALUE = confidence in precense call
+        
+ Feature Extraction - To identify differentially-expressed genes during acute GVHD versus recovery phase, the raw signal
+            intensity data were processed as follows.</field>
+        <field name="cell_type">cell culture</field>
+        <field name="cell_type">root</field>
+        <field name="cell_type">shoot</field>
+        <field name="full_dataset_link">https://www.ebi.ac.uk/arrayexpress/experiments/E-ATMX-31</field>
+        <field name="omics_type">Transcriptomics</field>
+        <field name="submitter_keywords">transcription profiling by array</field>
+        <field name="submitter">Chun Pong Lee</field>
+        <field name="submitter_email">leec30@student.uwa.edu.au</field>
+        <field name="species">Arabidopsis Thaliana</field>
+        <field name="repository">ArrayExpress</field>
+      </additional_fields>
+    </entry>
+    <entry id="E-ATMX-29">
+      <name>Transcription profiling of wild type and transgenic 35S:PAR1-GG Arabidopsis seedlings</name>
+      <description>Transcription profiling of wild type and transgenic 35S:PAR1-GG seedlings. To characterize the
+            transcriptional networks altered by constitutive overexpression of PAR1 in seedlings, using two-color
+            long-oligonucleotide microarrays.
+        </description>
+      <dates>
+        <date type="publication" value="2007-11-03"></date>
+        <date type="updated" value="2014-05-01"></date>
+        <date type="submission" value="2007-09-14"></date>
+      </dates>
+      <cross_references>
+        <ref dbname="pubmed" dbkey="17948056"/>
+      </cross_references>
+      <additional_fields>
+        <field name="sample_protocol">Nucleic Acid Extraction - Trizol extraction protocol</field>
+        <field name="data_protocol">Assay Data Transformation - ID_REF = &lt;br>VALUE = fluorescence intensity&lt;br>ABS_CALL = presence or absence call&lt;br>DETECTION
+            P-VALUE = confidence in precense call
+        
+ Feature Extraction - To identify differentially-expressed genes during acute GVHD versus recovery phase, the raw signal
+            intensity data were processed as follows.</field>
+        <field name="full_dataset_link">https://www.ebi.ac.uk/arrayexpress/experiments/E-ATMX-29</field>
+        <field name="omics_type">Transcriptomics</field>
+        <field name="submitter_keywords">transcription profiling by array</field>
+        <field name="submitter">Jaime F Martinez-Garcia</field>
+        <field name="submitter_email">jmggmg@ibmb.csic.es</field>
+        <field name="species">Arabidopsis Thaliana</field>
+        <field name="repository">ArrayExpress</field>
+      </additional_fields>
+    </entry>
+  </entries>
+</database>
