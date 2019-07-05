@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import uk.ac.ebi.ddi.ddifileservice.DdiFileServiceApplication;
 import uk.ac.ebi.ddi.ddifileservice.services.IFileSystem;
 import uk.ac.ebi.ddi.ddifileservice.type.ConvertibleOutputStream;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.configuration.SourceSplitterTaskProperties;
-import uk.ac.ebi.ddi.task.ddisourcesplitter.configuration.TaskConfiguration;
 import uk.ac.ebi.ddi.xml.validator.parser.OmicsXMLFile;
 import uk.ac.ebi.ddi.xml.validator.parser.marshaller.OmicsDataMarshaller;
 import uk.ac.ebi.ddi.xml.validator.parser.model.Database;
@@ -23,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SpringBootApplication(scanBasePackageClasses = {DdiFileServiceApplication.class, TaskConfiguration.class})
+@SpringBootApplication
 public class DdiSourceSplitterApplication implements CommandLineRunner {
 
 	@Autowired
