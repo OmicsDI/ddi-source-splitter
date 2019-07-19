@@ -21,8 +21,11 @@ import java.util.List;
         initializers = ConfigFileApplicationContextInitializer.class)
 @TestPropertySource(properties = {
         "s3.env_auth=true",
-        "splitter.input_directory=/testing/splitter/input",
-        "splitter.output_directory=/testing/splitter/output",
+        "s3.endpoint_url=https://s3.embassy.ebi.ac.uk",
+        "s3.bucket_name=caas-omicsdi",
+        "s3.region=eu-west-2",
+        "splitter.input_directory=testing/splitter/input",
+        "splitter.output_directory=testing/splitter/output",
         "splitter.file_prefix=output",
         "splitter.number_entries=1",
         "splitter.original_prefix=arrayexpress",
