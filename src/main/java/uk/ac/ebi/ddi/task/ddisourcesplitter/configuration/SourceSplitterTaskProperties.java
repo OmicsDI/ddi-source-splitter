@@ -11,9 +11,39 @@ public class SourceSplitterTaskProperties {
 
     private String filePrefix;
 
-    private int numberEntries;
+    private int numberEntries = 10;
 
-    private String originalPrefix;
+    private String originalPrefix = ".xml";
+
+    private String databaseElement = "database";
+
+    private String entriesElement = "entries";
+
+    private String entryElement = "entry";
+
+    public String getDatabaseElement() {
+        return databaseElement;
+    }
+
+    public void setDatabaseElement(String databaseElement) {
+        this.databaseElement = databaseElement;
+    }
+
+    public String getEntriesElement() {
+        return entriesElement;
+    }
+
+    public void setEntriesElement(String entriesElement) {
+        this.entriesElement = entriesElement;
+    }
+
+    public String getEntryElement() {
+        return entryElement;
+    }
+
+    public void setEntryElement(String entryElement) {
+        this.entryElement = entryElement;
+    }
 
     public String getInputDirectory() {
         return inputDirectory;
@@ -57,12 +87,15 @@ public class SourceSplitterTaskProperties {
 
     @Override
     public String toString() {
-        return "SourceSplitterTaskProperties{" +
-                "inputDirectory='" + inputDirectory + '\'' +
-                ", outputDirectory='" + outputDirectory + '\'' +
-                ", filePrefix='" + filePrefix + '\'' +
-                ", numberEntries=" + numberEntries +
-                ", originalPrefix='" + originalPrefix + '\'' +
-                '}';
+        return "SourceSplitterTaskProperties{"
+                + "inputDirectory='" + inputDirectory + '\''
+                + ", outputDirectory='" + outputDirectory + '\''
+                + ", filePrefix='" + filePrefix + '\''
+                + ", numberEntries=" + numberEntries
+                + ", originalPrefix='" + originalPrefix + '\''
+                + ", databaseElement='" + databaseElement + '\''
+                + ", entriesElement='" + entriesElement + '\''
+                + ", entryElement='" + entryElement + '\''
+                + '}';
     }
 }

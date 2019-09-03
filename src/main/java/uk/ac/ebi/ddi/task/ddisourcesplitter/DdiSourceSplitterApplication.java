@@ -6,19 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import uk.ac.ebi.ddi.ddifileservice.services.IFileSystem;
-import uk.ac.ebi.ddi.ddifileservice.type.ConvertibleOutputStream;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.configuration.SourceSplitterTaskProperties;
-import uk.ac.ebi.ddi.xml.validator.parser.OmicsXMLFile;
-import uk.ac.ebi.ddi.xml.validator.parser.marshaller.OmicsDataMarshaller;
-import uk.ac.ebi.ddi.xml.validator.parser.model.Database;
-import uk.ac.ebi.ddi.xml.validator.parser.model.Entries;
-import uk.ac.ebi.ddi.xml.validator.parser.model.Entry;
+import uk.ac.ebi.ddi.task.ddisourcesplitter.services.SourceSplitterService;
+import uk.ac.ebi.ddi.task.ddisourcesplitter.utils.XmlUtils;
 
-import java.io.File;
-import java.io.IOException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
@@ -28,9 +37,16 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 	private IFileSystem fileSystem;
 
 	@Autowired
+	private SourceSplitterService sourceSplitterService;
+
+	@Autowired
 	private SourceSplitterTaskProperties taskProperties;
 
-	private List<Entry> entries = new ArrayList<>();
+	private List<String> entries = new ArrayList<>();
+
+	private TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
+	private final XMLInputFactory factory = XMLInputFactory.newInstance();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DdiSourceSplitterApplication.class);
 
@@ -41,55 +57,77 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		fileSystem.cleanDirectory(taskProperties.getOutputDirectory());
-		AtomicInteger index = new AtomicInteger(0);
-		AtomicInteger outIndex = new AtomicInteger(1);
+		AtomicInteger outIndex = new AtomicInteger(0);
 
 		List<String> files = fileSystem.listFilesFromFolder(taskProperties.getInputDirectory());
 		for (String filePath : files) {
 			LOGGER.info("Processing file {}", filePath);
-			process(filePath, index, files.size(), outIndex);
+			process(filePath, outIndex);
 		}
 	}
 
-	public void process(String filePath, AtomicInteger index, int total, AtomicInteger outIndex) throws Exception {
-		index.getAndIncrement();
+	public void process(String filePath, AtomicInteger outIndex) throws Exception {
 		if (!filePath.contains(taskProperties.getOriginalPrefix())) {
 			return;
 		}
 		File file = fileSystem.getFile(filePath);
-		OmicsXMLFile reader = new OmicsXMLFile(file);
-		for (String id: reader.getEntryIds()) {
+		LOGGER.info("Reading database info...");
+		String database = sourceSplitterService.readDatabaseInfo(file);
 
-			LOGGER.info("The ID: {} will be enriched!!", id);
-			Entry dataset = reader.getEntryById(id);
-
-			entries.add(dataset);
-
-			if (entries.size() == taskProperties.getNumberEntries()) {
-				writeData(reader, entries, outIndex.get());
-				entries.clear();
-				outIndex.getAndIncrement();
+		StringWriter sw = new StringWriter();
+		XMLOutputFactory of = XMLOutputFactory.newInstance();
+		XMLEventWriter xw = null;
+		LOGGER.info("Parsing entries...");
+		try (final InputStream stream = new FileInputStream(file)) {
+			final XMLEventReader reader = factory.createXMLEventReader(stream);
+			while (reader.hasNext()) {
+				final XMLEvent event = reader.nextEvent();
+				if (event.isStartElement()
+						&& event.asStartElement().getName().getLocalPart().equals(taskProperties.getEntryElement())) {
+					xw = of.createXMLEventWriter(sw);
+				}
+				if (event.isEndElement()
+						&& event.asEndElement().getName().getLocalPart().equals(taskProperties.getEntryElement())) {
+					Objects.requireNonNull(xw).close();
+					entries.add(sw.toString());
+					sw = new StringWriter();
+					xw = null;
+				}
+				if (xw != null) {
+					xw.add(event);
+				}
+				if (entries.size() > 0 && entries.size() % taskProperties.getNumberEntries() == 0) {
+					writeXml(database, entries, outIndex.getAndIncrement());
+				}
 			}
 		}
-		if (index.get() == total && !entries.isEmpty()) {
-			writeData(reader, entries, outIndex.get());
-		}
+		writeXml(database, entries, outIndex.getAndIncrement());
 	}
 
-	private void writeData(OmicsXMLFile reader, List<Entry> data, int postfix) throws IOException {
-		String prefixFile = taskProperties.getFilePrefix();
-		String outputFileName = taskProperties.getOutputDirectory() + "/" + prefixFile + "_" + postfix + ".xml";
-		try (ConvertibleOutputStream outputStream = new ConvertibleOutputStream()) {
-			OmicsDataMarshaller outputXMLFile = new OmicsDataMarshaller();
-			Database database = new Database();
-			database.setDescription(reader.getDescription());
-			database.setName(reader.getName());
-			database.setRelease(reader.getRelease());
-			database.setReleaseDate(reader.getReleaseDate());
-			database.setEntryCount(data.size());
-			database.setEntries(new Entries(data));
-			outputXMLFile.marshall(database, outputStream);
-			fileSystem.saveFile(outputStream, outputFileName);
+	private void writeXml(String database, List<String> entries, int index) throws Exception {
+		if (entries.size() < 1) {
+			return;
 		}
+		Document document = XmlUtils.convertStringToDocument(database);
+		NodeList nodes = document.getElementsByTagName(taskProperties.getDatabaseElement());
+		Element element = (Element) nodes.item(0);
+		Node node = document.createElement(taskProperties.getEntriesElement());
+		element.appendChild(node);
+		for (String item : entries) {
+			Document itemDoc = XmlUtils.convertStringToDocument(item);
+			Node nodeToImport = document.importNode(itemDoc.getFirstChild(), true);
+			node.appendChild(nodeToImport);
+		}
+		String prefixFile = taskProperties.getFilePrefix();
+		Transformer transformer = transformerFactory.newTransformer();
+		File tmpFile = File.createTempFile("ddi", "tmp.xml");
+		FileWriter writer = new FileWriter(tmpFile);
+		StreamResult result = new StreamResult(writer);
+		transformer.transform(new DOMSource(document), result);
+
+		String outputFileName = taskProperties.getOutputDirectory() + "/" + prefixFile + "_" + index + ".xml";
+		LOGGER.info("Attempting to write data to {}", outputFileName);
+		fileSystem.copyFile(tmpFile, outputFileName);
+		entries.clear();
 	}
 }
