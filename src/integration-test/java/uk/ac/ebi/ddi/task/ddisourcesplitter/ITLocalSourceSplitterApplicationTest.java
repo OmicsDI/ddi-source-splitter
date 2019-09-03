@@ -12,6 +12,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.ddi.ddifileservice.services.IFileSystem;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.configuration.SourceSplitterTaskProperties;
+import uk.ac.ebi.ddi.xml.validator.parser.OmicsXMLFile;
+import uk.ac.ebi.ddi.xml.validator.utils.Tuple;
 
 import java.io.File;
 import java.util.List;
@@ -52,6 +54,14 @@ public class ITLocalSourceSplitterApplicationTest {
         application.run();
         List<String> outFiles = fileSystem.listFilesFromFolder(taskProperties.getOutputDirectory());
         Assert.assertEquals(3, outFiles.size());
+        for (String filePath : outFiles) {
+            File file = fileSystem.getFile(filePath);
+            Assert.assertTrue(OmicsXMLFile.hasFileHeader(file));
+            List<Tuple> errors = OmicsXMLFile.validateSchema(file);
+            Assert.assertEquals(1, errors.size());
+            Assert.assertEquals("cvc-complex-type.4: Attribute 'acc' must appear on element 'entry'.",
+                    errors.get(0).getValue());
+        }
 	}
 
     @After
