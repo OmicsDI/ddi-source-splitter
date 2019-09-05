@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.ebi.ddi.ddifileservice.services.IFileSystem;
+import uk.ac.ebi.ddi.ddifileservice.services.S3FileSystem;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.configuration.SourceSplitterTaskProperties;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.services.SourceSplitterService;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.utils.XmlUtils;
@@ -102,6 +103,9 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 			}
 		}
 		writeXml(database, entries, outIndex.getAndIncrement());
+		if (fileSystem instanceof S3FileSystem) {
+			file.delete();
+		}
 	}
 
 	private void writeXml(String database, List<String> entries, int index) throws Exception {
@@ -129,6 +133,7 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 		String outputFileName = taskProperties.getOutputDirectory() + "/" + prefixFile + "_" + index + ".xml";
 		LOGGER.info("Attempting to write data to {}", outputFileName);
 		fileSystem.copyFile(tmpFile, outputFileName);
+		tmpFile.delete();
 		entries.clear();
 	}
 }
