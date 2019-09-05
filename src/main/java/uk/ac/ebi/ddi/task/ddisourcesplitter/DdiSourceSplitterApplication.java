@@ -121,9 +121,10 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 		String prefixFile = taskProperties.getFilePrefix();
 		Transformer transformer = transformerFactory.newTransformer();
 		File tmpFile = File.createTempFile("ddi", "tmp.xml");
-		FileWriter writer = new FileWriter(tmpFile);
-		StreamResult result = new StreamResult(writer);
-		transformer.transform(new DOMSource(document), result);
+		try (FileWriter writer = new FileWriter(tmpFile)) {
+			StreamResult result = new StreamResult(writer);
+			transformer.transform(new DOMSource(document), result);
+		}
 
 		String outputFileName = taskProperties.getOutputDirectory() + "/" + prefixFile + "_" + index + ".xml";
 		LOGGER.info("Attempting to write data to {}", outputFileName);
