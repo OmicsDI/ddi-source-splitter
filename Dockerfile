@@ -12,4 +12,6 @@ COPY --from=builder /root/target/*.jar /
 
 RUN mv /*.jar /app.jar
 
+ENV JAVA_OPTIONS='-Xmx300m'
+
 ENTRYPOINT ["java", "-jar", "/app.jar"]
