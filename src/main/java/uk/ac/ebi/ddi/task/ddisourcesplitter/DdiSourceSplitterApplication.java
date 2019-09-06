@@ -74,7 +74,7 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 		File file = fileSystem.getFile(filePath);
 		LOGGER.info("Reading database info...");
 		String database = "";
-		if (!taskProperties.getDatabaseElement().isEmpty()) {
+		if (!taskProperties.getDatabaseElement().equalsIgnoreCase("None")) {
 			database = sourceSplitterService.readDatabaseInfo(file);
 		}
 
@@ -130,7 +130,7 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 			document = XmlUtils.convertStringToDocument(database);
 		}
 		Node node = document.createElement(taskProperties.getEntriesElement());
-		if (!taskProperties.getDatabaseElement().isEmpty()) {
+		if (!taskProperties.getDatabaseElement().equalsIgnoreCase("None")) {
 			NodeList nodes = document.getElementsByTagName(taskProperties.getDatabaseElement());
 			Element element = (Element) nodes.item(0);
 			element.appendChild(node);
