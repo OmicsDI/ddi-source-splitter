@@ -73,7 +73,10 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 		}
 		File file = fileSystem.getFile(filePath);
 		LOGGER.info("Reading database info...");
-		String database = sourceSplitterService.readDatabaseInfo(file);
+		String database = "";
+		if (!taskProperties.getDatabaseElement().isEmpty()) {
+			database = sourceSplitterService.readDatabaseInfo(file);
+		}
 
 		StringWriter sw = new StringWriter();
 		XMLOutputFactory of = XMLOutputFactory.newInstance();
@@ -90,7 +93,17 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 				if (event.isEndElement()
 						&& event.asEndElement().getName().getLocalPart().equals(taskProperties.getEntryElement())) {
 					Objects.requireNonNull(xw).close();
-					entries.add(sw.toString());
+					if (taskProperties.getFilters().isEmpty()) {
+						entries.add(sw.toString());
+					} else {
+						String entry = sw.toString();
+						for (String filter : taskProperties.getFilters()) {
+							if (entry.contains(filter)) {
+								entries.add(entry);
+								break;
+							}
+						}
+					}
 					sw = new StringWriter();
 					xw = null;
 				}
@@ -112,11 +125,19 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 		if (entries.size() < 1) {
 			return;
 		}
-		Document document = XmlUtils.convertStringToDocument(database);
-		NodeList nodes = document.getElementsByTagName(taskProperties.getDatabaseElement());
-		Element element = (Element) nodes.item(0);
+		Document document = XmlUtils.createDocument();
+		if (!database.isEmpty()) {
+			document = XmlUtils.convertStringToDocument(database);
+		}
 		Node node = document.createElement(taskProperties.getEntriesElement());
-		element.appendChild(node);
+		if (!taskProperties.getDatabaseElement().isEmpty()) {
+			NodeList nodes = document.getElementsByTagName(taskProperties.getDatabaseElement());
+			Element element = (Element) nodes.item(0);
+			element.appendChild(node);
+		} else {
+			document.appendChild(node);
+		}
+
 		for (String item : entries) {
 			Document itemDoc = XmlUtils.convertStringToDocument(item);
 			Node nodeToImport = document.importNode(itemDoc.getFirstChild(), true);

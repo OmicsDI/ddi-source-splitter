@@ -2,6 +2,9 @@ package uk.ac.ebi.ddi.task.ddisourcesplitter.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @ConfigurationProperties("splitter")
 public class SourceSplitterTaskProperties {
 
@@ -20,6 +23,8 @@ public class SourceSplitterTaskProperties {
     private String entriesElement = "entries";
 
     private String entryElement = "entry";
+
+    private List<String> filters = new ArrayList<>();
 
     public String getDatabaseElement() {
         return databaseElement;
@@ -83,6 +88,14 @@ public class SourceSplitterTaskProperties {
 
     public void setOriginalPrefix(String originalPrefix) {
         this.originalPrefix = originalPrefix;
+    }
+
+    public List<String> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(List<String> filters) {
+        this.filters = filters;
     }
 
     @Override
