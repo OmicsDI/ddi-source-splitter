@@ -21,4 +21,11 @@ public class XmlUtils {
         DocumentBuilder builder = factory.newDocumentBuilder();
         return builder.parse(new InputSource(new StringReader(xmlStr)));
     }
+
+
+    public static Document createDocument() throws ParserConfigurationException {
+        DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+        return documentBuilder.newDocument();
+    }
 }
