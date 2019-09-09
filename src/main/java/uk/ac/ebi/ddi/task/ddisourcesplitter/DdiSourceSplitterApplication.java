@@ -11,7 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.ebi.ddi.ddifileservice.services.IFileSystem;
-import uk.ac.ebi.ddi.ddifileservice.services.S3FileSystem;
+import uk.ac.ebi.ddi.ddifileservice.type.CloseableFile;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.configuration.SourceSplitterTaskProperties;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.services.SourceSplitterService;
 import uk.ac.ebi.ddi.task.ddisourcesplitter.utils.XmlUtils;
@@ -63,15 +63,16 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 		List<String> files = fileSystem.listFilesFromFolder(taskProperties.getInputDirectory());
 		for (String filePath : files) {
 			LOGGER.info("Processing file {}", filePath);
-			process(filePath, outIndex);
+			if (!filePath.contains(taskProperties.getOriginalPrefix())) {
+				continue;
+			}
+			try (CloseableFile file = fileSystem.getFile(filePath)) {
+				process(file, outIndex);
+			}
 		}
 	}
 
-	public void process(String filePath, AtomicInteger outIndex) throws Exception {
-		if (!filePath.contains(taskProperties.getOriginalPrefix())) {
-			return;
-		}
-		File file = fileSystem.getFile(filePath);
+	public void process(File file, AtomicInteger outIndex) throws Exception {
 		LOGGER.info("Reading database info...");
 		String database = "";
 		if (!taskProperties.getDatabaseElement().equalsIgnoreCase("None")) {
@@ -116,9 +117,6 @@ public class DdiSourceSplitterApplication implements CommandLineRunner {
 			}
 		}
 		writeXml(database, entries, outIndex.getAndIncrement());
-		if (fileSystem instanceof S3FileSystem) {
-			file.delete();
-		}
 	}
 
 	private void writeXml(String database, List<String> entries, int index) throws Exception {
